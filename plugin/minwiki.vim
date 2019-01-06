@@ -18,13 +18,3 @@ augroup minwiki
 	exec "autocmd BufRead,BufNewFile" g:minwiki_path . "*" "call s:setbindings()"
 	exec "autocmd TabNew" g:minwiki_path . "*" "let t:minwiki_history = []"
 augroup END
-
-	" TODO: write file on close buffer
-	" TODO: automatically create a link
-
-	" consider using autoload for some of this, with the remaps
-	" inside of a dedicated file
-	" TODO: delete wiki page
-	" TODO: rename wiki page (and update existing links!)
-	" TODO: highlight links
-	" TODO: option: use normal markdown links
