@@ -16,5 +16,5 @@ nnoremap <Leader>ww :call minwiki#Go('index')<CR>
 augroup minwiki
 	autocmd!
 	exec "autocmd BufRead,BufNewFile" g:minwiki_path . "*" "call s:setbindings()"
-	exec "autocmd TabNew" g:minwiki_path . "*" "let t:minwiki_history = []"
+	exec "autocmd WinNew" g:minwiki_path . "*" "let w:minwiki_history = []"
 augroup END

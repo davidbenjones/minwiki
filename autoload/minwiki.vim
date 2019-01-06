@@ -7,9 +7,9 @@ function minwiki#Go(page_name)
 		exe "bwipeout " . current_buffer
 	else
 		exe "tab drop " . page_path
-		let t:minwiki_history = []
+		let w:minwiki_history = []
 	endif
-	call add(t:minwiki_history, a:page_name)
+	call add(w:minwiki_history, a:page_name)
 endfunction
 
 " plan:
@@ -63,9 +63,9 @@ function minwiki#Enter()
 endfunction
 
 function minwiki#PrevPage()
-	if len(t:minwiki_history) > 1
-		let prev_page = t:minwiki_history[-2]
-		let t:minwiki_history = t:minwiki_history[0:-3]
+	if len(w:minwiki_history) > 1
+		let prev_page = w:minwiki_history[-2]
+		let w:minwiki_history = w:minwiki_history[0:-3]
 		call minwiki#Go(prev_page)
 	else
 		echo "No previous pages."
