@@ -3,10 +3,10 @@ if !exists('g:minwiki_path')
 endif
 
 function s:setbindings()
-	nnoremap <buffer> <CR> :call minwiki#Enter()<CR>
-	nnoremap <buffer> <BS> :call minwiki#PrevPage()<CR>
-	nnoremap <buffer> <Tab> :<C-U>call minwiki#NextLink(v:count1)<CR>
-	nnoremap <buffer> <S-Tab> :<C-U>call minwiki#PrevLink(v:count1)<CR>
+	nnoremap <silent> <buffer> <CR> :call minwiki#Enter()<CR>
+	nnoremap <silent> <buffer> <BS> :call minwiki#PrevPage()<CR>
+	nnoremap <silent> <buffer> <Tab> :<C-U>call minwiki#NextLink(v:count1)<CR>
+	nnoremap <silent> <buffer> <S-Tab> :<C-U>call minwiki#PrevLink(v:count1)<CR>
 endfunction
 
 " set mapping to open wiki
