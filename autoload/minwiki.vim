@@ -135,12 +135,20 @@ endfunction
 
 " FIX: ignore brackets in inline code or code blocks
 
-function minwiki#NextLink()
-	call search('\[\([^\]]\|\n\)*\](\([^)]\|\n\)*)', '')
+function minwiki#NextLink(count)
+	let i = a:count
+	while i
+		call search('\[\([^\]]\|\n\)*\](\([^)]\|\n\)*)', '')
+		let i = i - 1
+	endwhile
 endfunction
 
-function minwiki#PrevLink()
-	call search('\[\([^\]]\|\n\)*\](\([^)]\|\n\)*)', 'b')
+function minwiki#PrevLink(count)
+	let i = a:count
+	while i
+		call search('\[\([^\]]\|\n\)*\](\([^)]\|\n\)*)', 'b')
+		let i = i - 1
+	endwhile
 endfunction
 
 function s:iswiki()
