@@ -83,13 +83,10 @@ function s:createlink()
 		exec return_cursor
 	endif
 
-	" TODO: if the braces don't match, change word to link
 	if start_line == 0 || end_line == 0
 		let cursor_word = expand('<cword>')
-		let new_link = s:cleanlink(cursor_word) . '.md'
-		let new_text = '[' . cursor_word . '](' . new_link . ')'
+		let new_text = '[' . cursor_word . ']'
 		exec 'normal! ciw' . new_text
-		echo "New link: " . new_link
 		return 0
 	endif
 
