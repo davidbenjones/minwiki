@@ -136,11 +136,11 @@ endfunction
 " FIX: ignore brackets in inline code or code blocks
 
 function minwiki#NextLink()
-	call search('\[\([^\]]\|\n\)*\]', '')
+	call search('\[\([^\]]\|\n\)*\](\([^)]\|\n\)*)', '')
 endfunction
 
 function minwiki#PrevLink()
-	call search('\[\([^\]]\|\n\)*\]', 'b')
+	call search('\[\([^\]]\|\n\)*\](\([^)]\|\n\)*)', 'b')
 endfunction
 
 function s:iswiki()
