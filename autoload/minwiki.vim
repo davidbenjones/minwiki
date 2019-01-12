@@ -1,8 +1,24 @@
-function minwiki#Go(page_name) 
-	let page_path = g:minwiki_path . a:page_name
+function minwiki#Go(...) 
+
+	if a:0 == 0
+		call inputsave()
+		let page_name = input('Go to page: ', '', 'customlist,minwiki#AutocompletePage')
+		call inputrestore()
+		redraw
+		if match(page_name,'^\s*$') > -1
+			echo 'No page given.'
+			return
+		elseif match(page_name,'..*\.md$') == -1
+			let page_name = page_name . '.md'
+		endif
+	else
+		let page_name = a:1
+	endif
+
+	let page_path = g:minwiki_path . page_name
 
 	" FIX: Actually check if it's a URL instead of this shit.
-	if match(a:page_name, 'http') != -1
+	if match(page_name, 'http') != -1
 		echo "Cannot follow URL."
 		return
 	endif
@@ -20,8 +36,12 @@ function minwiki#Go(page_name)
 		let w:minwiki_history = []
 	endif
 
-	call add(w:minwiki_history, a:page_name)
+	call add(w:minwiki_history, page_name)
 endfunction
+
+fun minwiki#AutocompletePage(A,L,P)
+	return map(glob(g:minwiki_path . a:A . '*', 0, 1),"fnamemodify(v:val,':t')")
+endfun
 
 function s:getlink()
 	let current_character = matchstr(getline('.'), '\%'.col('.').'c.')
@@ -132,8 +152,6 @@ function minwiki#PrevPage()
 		echo "No previous pages."
 	endif
 endfunction
-
-" FIX: ignore brackets in inline code or code blocks
 
 function minwiki#NextLink(count)
 	let i = a:count
