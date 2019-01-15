@@ -2,7 +2,7 @@ function minwiki#Go(...)
 
 	if a:0 == 0
 		call inputsave()
-		let page_name = input('Go to page: ', '', 'customlist,minwiki#AutocompletePage')
+		let page_name = input('Go to wiki page: ', '', 'customlist,minwiki#AutocompletePage')
 		call inputrestore()
 		redraw
 		if match(page_name,'^\s*$') > -1
