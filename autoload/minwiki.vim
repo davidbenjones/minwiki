@@ -58,6 +58,12 @@ function s:urltype(url)
 	return 'other'
 endfunction
 
+" escape for magic mode
+function s:regexescape(string, other_characters)
+	" use a:other_characters to add delimiter
+	return escape(a:string, '*^$.&~\' . a:other_characters)
+endfunction
+
 function s:getlink()
 	let current_character = matchstr(getline('.'), '\%'.col('.').'c.')
 	if current_character == '['
