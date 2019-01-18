@@ -64,6 +64,86 @@ function s:regexescape(string, other_characters)
 	return escape(a:string, '*^$.&~\' . a:other_characters)
 endfunction
 
+function minwiki#Rename(...)
+	if a:0 == 0
+		let old_name = s:input('Rename wiki page: ', s:getlink())
+	else
+		let old_name = a:1
+	endif
+
+	if match(old_name,'^\s*$') > -1
+		echon 'No page to rename.'
+		return 0
+	endif
+
+	if a:0 < 1
+		let new_name = s:input('Rename ''' . tolower(old_name) . ''' to: ', '')
+	else
+		let new_name = a:2
+	endif
+
+	if match(new_name,'^\s*$') > -1
+		echon 'No page given.'
+		return 0
+	endif
+
+	return s:renamepage(old_name,tolower(new_name))
+endfunction
+
+" TODO: enforce filename conventions; see minwiki#Go
+function s:renamepage(old_name,new_name)
+	if !empty(glob(g:minwiki_path . a:new_name))
+		echo 'Cannot rename ''' . a:old_name . ''' to ''' . a:new_name .
+			\ '''. Target already exists.'
+		return 1
+	endif
+
+	let option_hidden = &hidden
+	set hidden
+
+	let current_buffer = bufnr('%')
+	let close_buffers = []
+
+	if filereadable(fnamemodify(g:minwiki_path . a:old_name, ':p'))
+		if bufnr(g:minwiki_path . a:old_name) == -1
+			call add(close_buffers,g:minwiki_path . a:old_name)
+			call add(close_buffers,g:minwiki_path . a:new_name)
+		endif
+		exe 'silent! edit' g:minwiki_path . a:old_name
+		exe 'silent! saveas' g:minwiki_path . a:new_name
+		call delete(fnamemodify(g:minwiki_path . a:old_name,':p'))
+	endif
+
+	let wiki_files = glob(g:minwiki_path . '*', 0, 1)
+	let total_files = len(wiki_files)
+
+	let msgprefix = 'Renaming ' . a:old_name . ' to ' . a:new_name . ': '
+	let files_processed = 0
+
+	for file_name in wiki_files
+		if bufnr(file_name) == -1
+			call add(close_buffers,file_name)
+		endif
+
+		exe 'silent! edit' file_name
+		exe '%s/\m\[[^\]]*\](\zs' . s:regexescape(a:old_name,'/') . '\ze)' .
+			\ '/' . escape(a:new_name,'&\/') . '/gie'
+		exe 'silent! write' file_name
+
+		let files_processed += 1
+		call s:printprogress(files_processed,total_files,msgprefix)
+	endfor
+
+	exe 'buffer' current_buffer
+
+	for file_name in close_buffers
+		exe 'bwipeout' file_name
+	endfor
+
+	let &hidden = option_hidden
+
+	return 0
+endfunction
 
 function s:printprogress(part,total,prefix)
 	let length = 12

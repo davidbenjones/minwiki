@@ -12,6 +12,7 @@ endfunction
 " set mapping to open wiki
 nnoremap <Leader>ww :call minwiki#Go('index.md')<CR>
 nnoremap <Leader>wg :call minwiki#Go()<CR>
+nnoremap <Leader>wr :call minwiki#Rename()<CR>
 
 " set leaders for special files
 augroup minwiki
