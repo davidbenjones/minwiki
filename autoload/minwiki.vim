@@ -1,10 +1,6 @@
 function minwiki#Go(...) 
-
 	if a:0 == 0
-		call inputsave()
-		let page_name = input('Go to wiki page: ', '', 'customlist,minwiki#AutocompletePage')
-		call inputrestore()
-		redraw
+		let page_name = s:input('Go to wiki page: ', '')
 		if match(page_name,'^\s*$') > -1
 			echo 'No page given.'
 			return
@@ -15,19 +11,21 @@ function minwiki#Go(...)
 		let page_name = a:1
 	endif
 
-	let page_path = g:minwiki_path . page_name
-
-	" FIX: Actually check if it's a URL instead of this shit.
-	if match(page_name, 'http') != -1
-		echo "Cannot follow URL."
+	if s:urltype(page_name) !=? 'wiki'
+		echo 'Cannot follow link.'
 		return
 	endif
 
+	let page_path = g:minwiki_path . page_name
+
+	" current buffer is empty
 	if @% == ""
 		exe "edit " . page_path	
+	" current buffer is wiki
 	elseif s:iswiki()
 		write
 		exe "edit " . page_path
+	" current buffer is other
 	else
 		exe "tab drop " . page_path
 	endif
@@ -39,9 +37,26 @@ function minwiki#Go(...)
 	call add(w:minwiki_history, page_name)
 endfunction
 
-fun minwiki#AutocompletePage(A,L,P)
+function minwiki#AutocompletePage(A,L,P)
 	return map(glob(g:minwiki_path . a:A . '*', 0, 1),"fnamemodify(v:val,':t')")
-endfun
+endfunction
+
+function s:input(prompt,default)
+	call inputsave()
+	let temp = input(a:prompt, a:default, 'customlist,minwiki#AutocompletePage')
+	call inputrestore()
+	redraw
+	return temp
+endfunction
+
+function s:urltype(url)
+	if match(a:url, '^https\?://') != -1
+		return 'web'
+	elseif match(a:url, '.*\.md$') != -1
+		return 'wiki'
+	endif
+	return 'other'
+endfunction
 
 function s:getlink()
 	let current_character = matchstr(getline('.'), '\%'.col('.').'c.')
