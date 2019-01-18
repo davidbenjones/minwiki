@@ -64,6 +64,15 @@ function s:regexescape(string, other_characters)
 	return escape(a:string, '*^$.&~\' . a:other_characters)
 endfunction
 
+
+function s:printprogress(part,total,prefix)
+	let length = 12
+	let percent = float2nr(1.0 * a:part / a:total * length)
+	let padding = len(a:total) - len(a:part)
+	echon a:prefix . '[' . repeat('=',percent) . repeat(' ',length-percent) . '] '
+		\ . repeat(' ',padding) . a:part . '/' . a:total
+endfunction
+
 function s:getlink()
 	let current_character = matchstr(getline('.'), '\%'.col('.').'c.')
 	if current_character == '['
