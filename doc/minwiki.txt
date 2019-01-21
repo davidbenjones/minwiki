@@ -1,0 +1,82 @@
+*minwiki.txt*		     For Vim version 8.0	Last change: 2019 Jan 21
+
+			       _               _ _    _ ~
+		     _ __ ___ (_)_ ____      _(_) | _(_)~
+		    | '_ ` _ \| | '_ \ \ /\ / / | |/ / |~
+		    | | | | | | | | | \ V  V /| |   <| |~
+		    |_| |_| |_|_|_| |_|\_/\_/ |_|_|\_\_|~
+
+				 Version 1.0
+
+===============================================================================
+CONTENTS                                                                *minwiki*
+
+	1. Intro                  |minwiki-intro|
+	2. Mappings               |minwiki-mappings|
+	    2.1. Global Mappings  |minwiki-global-mappings|
+	    2.2. Local Mappings   |minwiki-local-mappings|
+	3. License                |minwiki-license|
+	4. Credits                |minwiki-credits|
+
+================================================================================
+1. Intro                                                           *minwiki-intro*
+
+Minwiki is a collection of functions designed to let you easily maintain a
+personal wiki in Vim in markdown. You can use minwiki for anything that can be
+done with a wiki. The author of this software uses minwiki to keep a collection
+of linked notes.
+
+This project is entirely inspired by Vimwiki, which I used briefly until I
+became dissatisfied with the way markdown is treated like a second-class
+citizen. Markdown is the only supported language for wiki pages in Minwiki.
+The plugin is designed to impact the default markdown configuration and
+plugins a little as possible. (In particular, tagged code fences still work.)
+
+To get started, press <Leader>ww to open the wiki index page, the main page of
+your wiki. By deafult, this is located in ~/wiki/index.md.
+
+You can use any valid markdown syntax in your wiki. Get started with the
+following example:
+>
+ # My Wiki
+
+ * Lists
+ * Resources
+ * Other
+>
+Copy and paste this into your index. Then place your cursor over the word
+"Lists" and press <Enter> to surround the word in brackets. Press <Enter>
+again to create a link. Press <Enter> again to follow that link to a new file
+called lists.md.
+
+================================================================================
+2. Mappings                                                     *minwiki-mappings*
+
+Minwiki creates both global and wiki-specific mappings.
+
+--------------------------------------------------------------------------------
+2.1. Global Mappings                                     *minwiki-global-mappings*
+
+nnoremap <Leader>ww :call minwiki#Go('index.md')<CR>
+nnoremap <Leader>wg :call minwiki#Go()<CR>
+nnoremap <Leader>wr :call minwiki#Rename()<CR>
+nnoremap <Leader>wd :call minwiki#Delete()<CR>
+
+--------------------------------------------------------------------------------
+2.2. Local Mappings                                       *minwiki-local-mappings*
+
+Local mappings are specific to files with a markdown extension located inside
+the folder |g:minwiki_path|.
+
+ADD:
+	nnoremap <silent> <buffer> <CR> :call minwiki#Enter()<CR>
+	nnoremap <silent> <buffer> <BS> :call minwiki#PrevPage()<CR>
+	nnoremap <silent> <buffer> <Tab> :<C-U>call minwiki#NextLink(v:count1)<CR>
+	nnoremap <silent> <buffer> <S-Tab> :<C-U>call minwiki#PrevLink(v:count1)<CR>
+
+================================================================================
+3. License                                                       *minwiki-license*
+================================================================================
+4. Credits                                                       *minwiki-credits*
+
+ vim:tw=80:ts=8:noet:ft=help:norl:
