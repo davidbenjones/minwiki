@@ -13,6 +13,7 @@ endfunction
 nnoremap <Leader>ww :call minwiki#Go('index.md')<CR>
 nnoremap <Leader>wg :call minwiki#Go()<CR>
 nnoremap <Leader>wr :call minwiki#Rename()<CR>
+nnoremap <Leader>wd :call minwiki#Delete()<CR>
 
 " set leaders for special files
 augroup minwiki
