@@ -64,6 +64,91 @@ function s:regexmagicescape(string, other_characters)
 	return escape(a:string, '*^$.&~\' . a:other_characters)
 endfunction
 
+function minwiki#Delete(...)
+	if a:0 == 0
+		let page_name = s:input('Delete wiki page: ', s:getlink())
+	else
+		let page_name = a:1
+	endif
+
+	return s:delete(page_name)
+endfunction
+
+function s:delete(page_name)
+	let l:page_name = s:cleanlink(a:page_name)
+
+	if s:urltype(l:page_name) ==# 'blank'
+		echon 'No page given.'
+		return 0
+	elseif !filewritable(fnamemodify(g:minwiki_path . l:page_name, ':p'))
+		echon 'Wiki page ''' . l:page_name . ''' does not exist.'
+		return 0
+	endif
+
+	echohl WarningMsg
+	echon 'Delete ''' . l:page_name . '''? (This cannot be undone.) (Y)es, [N]o: '
+	echohl None
+	let confirm_rename = nr2char(getchar())
+
+	if !(confirm_rename ==? 'y')
+		echo 'Did not delete ''' . l:page_name . '''.'
+		return 0
+	endif
+
+	let option_hidden = &hidden
+	set hidden
+
+	let current_buffer = bufnr('%')
+	let close_buffers = []
+
+	let wiki_files = glob(g:minwiki_path . '*', 0, 1)
+	let total_files = len(wiki_files)
+
+	let msgprefix = 'Deleting links to ' . l:page_name . ': '
+	let files_processed = 0
+
+	for file_name in wiki_files
+		if bufnr(file_name) == -1
+			call add(close_buffers,file_name)
+		endif
+
+		exe 'silent! edit' file_name
+		exe '%s/\m\[\([^\]]*\)\](' . s:regexmagicescape(l:page_name,'/') . ')' .
+			\ '/\1/gie'
+		exe 'silent! write' file_name
+
+		let files_processed += 1
+		call s:printprogress(files_processed,total_files,msgprefix)
+	endfor
+
+	exe 'buffer' current_buffer
+
+	for file_name in close_buffers
+		exe 'bwipeout' file_name
+	endfor
+
+	let l:where_next = ""
+	if expand('%:p') ==# fnamemodify(g:minwiki_path . l:page_name, ':p')
+		if len(w:minwiki_history) > 1
+			let l:where_next = g:minwiki_path . w:minwiki_history[-2]
+			let w:minwiki_history = w:minwiki_history[0:-2]
+		else
+			let l:where_next = g:minwiki_path . 'index.md'
+		endif
+	endif
+
+	if l:where_next != ""
+		exe 'buffer' l:where_next
+	endif
+
+	call delete(fnamemodify(g:minwiki_path . l:page_name,':p'))
+	if bufnr(g:minwiki_path . l:page_name) != -1
+		exe 'bwipeout' fnamemodify(g:minwiki_path . l:page_name,':p')
+	endif
+
+	let &hidden = option_hidden
+endfunction
+
 function minwiki#Rename(...)
 	if a:0 == 0
 		let old_name = s:input('Rename wiki page: ', s:getlink())
@@ -112,7 +197,7 @@ function s:renamepage(old_name,new_name)
 	echon 'Rename ''' . l:old_name . ''' to ''' . l:new_name . '''? (Y)es, [N]o: '
 	echohl None
 	let confirm_rename = nr2char(getchar())
-	
+
 	if !(confirm_rename ==? 'y')
 		echo 'Did not rename ''' . l:old_name . '''.'
 		return 0
@@ -253,7 +338,7 @@ function s:createlink()
 	let original_lines[-1] = original_lines[-1][0:end_column-1] . '(' . clean_link . '.md)' . original_lines[-1][end_column:]
 
 	call setline(start_line,original_lines)
-	
+
 	echo 'New link: ' . clean_link . '.md'
 endfunction
 
