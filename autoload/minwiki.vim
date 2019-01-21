@@ -1,3 +1,7 @@
+" minwiki.vim - minimal wiki
+" Maintainer: Ben Jones <https://www.github.com/davidbenjones>
+" Version:    1.0
+
 function minwiki#Go(...) 
 	if a:0 == 0
 		let page_name = s:input('Go to wiki page: ', '')

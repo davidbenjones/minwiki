@@ -1,3 +1,7 @@
+" minwiki.vim - minimal wiki
+" Maintainer: Ben Jones <https://www.github.com/davidbenjones>
+" Version:    1.0
+
 if !exists('g:minwiki_path')
 	let g:minwiki_path = '~/wiki/'
 endif
