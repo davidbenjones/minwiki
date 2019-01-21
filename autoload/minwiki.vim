@@ -2,7 +2,7 @@
 " Maintainer: Ben Jones <https://www.github.com/davidbenjones>
 " Version:    1.0
 
-function minwiki#Go(...) 
+function minwiki#Go(...)
 	if a:0 == 0
 		let page_name = s:input('Go to wiki page: ', '')
 		if match(page_name,'^\s*$') > -1
@@ -24,7 +24,7 @@ function minwiki#Go(...)
 
 	" current buffer is empty
 	if @% == ""
-		exe "edit " . page_path	
+		exe "edit " . page_path
 	elseif s:iswiki()
 		write
 		exe "edit " . page_path
