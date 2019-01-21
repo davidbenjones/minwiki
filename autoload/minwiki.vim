@@ -21,11 +21,9 @@ function minwiki#Go(...)
 	" current buffer is empty
 	if @% == ""
 		exe "edit " . page_path	
-	" current buffer is wiki
 	elseif s:iswiki()
 		write
 		exe "edit " . page_path
-	" current buffer is other
 	else
 		exe "tab drop " . page_path
 	endif
@@ -54,12 +52,14 @@ function s:urltype(url)
 		return 'web'
 	elseif match(a:url, '.*\.md$') != -1
 		return 'wiki'
+	elseif match(a:url,'^\s*$') > -1
+		return 'blank'
 	endif
 	return 'other'
 endfunction
 
 " escape for magic mode
-function s:regexescape(string, other_characters)
+function s:regexmagicescape(string, other_characters)
 	" use a:other_characters to add delimiter
 	return escape(a:string, '*^$.&~\' . a:other_characters)
 endfunction
@@ -71,8 +71,12 @@ function minwiki#Rename(...)
 		let old_name = a:1
 	endif
 
-	if match(old_name,'^\s*$') > -1
+	let old_urltype = s:urltype(old_name)
+	if old_urltype ==# 'blank'
 		echon 'No page to rename.'
+		return 0
+	elseif old_urltype !=# 'wiki'
+		echon 'Not a wiki link.'
 		return 0
 	endif
 
@@ -82,20 +86,36 @@ function minwiki#Rename(...)
 		let new_name = a:2
 	endif
 
-	if match(new_name,'^\s*$') > -1
+	let new_urltype = s:urltype(new_name)
+	if new_urltype ==# 'blank'
 		echon 'No page given.'
+		return 0
+	elseif new_urltype !=# 'wiki'
+		echon 'Target not a wiki link.'
 		return 0
 	endif
 
-	return s:renamepage(old_name,tolower(new_name))
+	return s:renamepage(old_name,new_name)
 endfunction
 
-" TODO: enforce filename conventions; see minwiki#Go
 function s:renamepage(old_name,new_name)
-	if !empty(glob(g:minwiki_path . a:new_name))
-		echo 'Cannot rename ''' . a:old_name . ''' to ''' . a:new_name .
+	let l:old_name = tolower(a:old_name)
+	let l:new_name = tolower(a:new_name)
+
+	if !empty(glob(g:minwiki_path . l:new_name))
+		echo 'Cannot rename ''' . l:old_name . ''' to ''' . l:new_name .
 			\ '''. Target already exists.'
 		return 1
+	endif
+
+	echohl WarningMsg
+	echon 'Rename ''' . l:old_name . ''' to ''' . l:new_name . '''? (Y)es, [N]o: '
+	echohl None
+	let confirm_rename = nr2char(getchar())
+	
+	if !(confirm_rename ==? 'y')
+		echo 'Did not rename ''' . l:old_name . '''.'
+		return 0
 	endif
 
 	let option_hidden = &hidden
@@ -104,20 +124,20 @@ function s:renamepage(old_name,new_name)
 	let current_buffer = bufnr('%')
 	let close_buffers = []
 
-	if filereadable(fnamemodify(g:minwiki_path . a:old_name, ':p'))
-		if bufnr(g:minwiki_path . a:old_name) == -1
-			call add(close_buffers,g:minwiki_path . a:old_name)
-			call add(close_buffers,g:minwiki_path . a:new_name)
+	if filereadable(fnamemodify(g:minwiki_path . l:old_name, ':p'))
+		if bufnr(g:minwiki_path . l:old_name) == -1
+			call add(close_buffers,g:minwiki_path . l:old_name)
+			call add(close_buffers,g:minwiki_path . l:new_name)
 		endif
-		exe 'silent! edit' g:minwiki_path . a:old_name
-		exe 'silent! saveas' g:minwiki_path . a:new_name
-		call delete(fnamemodify(g:minwiki_path . a:old_name,':p'))
+		exe 'silent! edit' g:minwiki_path . l:old_name
+		exe 'silent! saveas' g:minwiki_path . l:new_name
+		call delete(fnamemodify(g:minwiki_path . l:old_name,':p'))
 	endif
 
 	let wiki_files = glob(g:minwiki_path . '*', 0, 1)
 	let total_files = len(wiki_files)
 
-	let msgprefix = 'Renaming ' . a:old_name . ' to ' . a:new_name . ': '
+	let msgprefix = 'Renaming ' . l:old_name . ' to ' . l:new_name . ': '
 	let files_processed = 0
 
 	for file_name in wiki_files
@@ -126,8 +146,8 @@ function s:renamepage(old_name,new_name)
 		endif
 
 		exe 'silent! edit' file_name
-		exe '%s/\m\[[^\]]*\](\zs' . s:regexescape(a:old_name,'/') . '\ze)' .
-			\ '/' . escape(a:new_name,'&\/') . '/gie'
+		exe '%s/\m\[[^\]]*\](\zs' . s:regexmagicescape(l:old_name,'/') . '\ze)' .
+			\ '/' . escape(l:new_name,'&\/') . '/gie'
 		exe 'silent! write' file_name
 
 		let files_processed += 1
@@ -222,9 +242,6 @@ function s:createlink()
 
 	let original_lines = getline(start_line,end_line)
 	let lines = copy(original_lines)
-	" STEPS:
-	"	1. Get the text inside the brackets.
-	"	2. Append the link in parentheses
 
 	" get text inside of brackets
 	let lines[0] = lines[0][start_column:]
