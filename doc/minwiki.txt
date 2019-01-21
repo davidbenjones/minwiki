@@ -16,7 +16,6 @@ CONTENTS                                                                *minwiki
 	    2.1. Global Mappings  |minwiki-global-mappings|
 	    2.2. Local Mappings   |minwiki-local-mappings|
 	3. License                |minwiki-license|
-	4. Credits                |minwiki-credits|
 
 ================================================================================
 1. Intro                                                           *minwiki-intro*
@@ -27,10 +26,10 @@ done with a wiki. The author of this software uses minwiki to keep a collection
 of linked notes.
 
 This project is entirely inspired by Vimwiki, which I used briefly until I
-became dissatisfied with the way markdown is treated like a second-class
-citizen. Markdown is the only supported language for wiki pages in Minwiki.
-The plugin is designed to impact the default markdown configuration and
-plugins a little as possible. (In particular, tagged code fences still work.)
+became dissatisfied with the way markdown is treated. Markdown is the only
+supported language for wiki pages in Minwiki. The plugin is designed to impact
+the default markdown configuration and plugins a little as possible. (In
+particular, tagged code fences still work.)
 
 To get started, press <Leader>ww to open the wiki index page, the main page of
 your wiki. By deafult, this is located in ~/wiki/index.md.
@@ -52,31 +51,84 @@ called lists.md.
 ================================================================================
 2. Mappings                                                     *minwiki-mappings*
 
-Minwiki creates both global and wiki-specific mappings.
+Minwiki creates both global and local mappings. Global mappings are accessible
+from any buffer, whereas local mappings are only available in buffers where
+'filetype' is set to 'minwiki'. This is set automatically for all files in the
+folder |g:minwiki_path|.
 
 --------------------------------------------------------------------------------
-2.1. Global Mappings                                     *minwiki-global-mappings*
+2.1. Global Mappings                                   *minwiki-global-mappings*
 
-nnoremap <Leader>ww :call minwiki#Go('index.md')<CR>
-nnoremap <Leader>wg :call minwiki#Go()<CR>
-nnoremap <Leader>wr :call minwiki#Rename()<CR>
-nnoremap <Leader>wd :call minwiki#Delete()<CR>
+						   *<Leader>ww*  *minwiki-index*
+<Leader>ww	Opens the index page. If the current buffer is a wiki page,
+		then the current buffer is replaced with the index. Otherwise,
+		the index is opened in a new tab. Maps to <Plug>(minwiki-index).
+
+						       *<Leader>wg* *minwiki-go*
+<Leader>wg	Go to the given wiki page, specified by the filename of the page
+		with the extension. If page does not exist, a new page with the
+		given name will open. Maps to <Plug>(minwiki-go).
+
+						   *<Leader>wr* *minwiki-rename*
+<Leader>wr	Rename a page. This updates all links already directed at the
+		original page and will change the filename of the page. Maps
+		to <Plug>(minwiki-rename).
+
+						   *<Leader>wd* *minwiki-delete*
+<Leader>wd	Delete a page. This removes all links to the given page and
+		deletes the file with the page name. Be sure that your wiki is
+		properly backed up, as page deletion cannot be undone. Maps to
+		<Plug>(minwiki-delete).
+
+To redefine a global mapping, simply create a new map in your vimrc.
+For example, to map <Leader>i to <Plug>(minwiki-index), put >
+	nmap <silent> <Leader>i <Plug>(minwiki-index)
+somewhere in your vimrc. The |<silent>| flag prevents the command line from
+echoing the command. Notice that we used |nmap| instead of |nnoremap| because
+we need to access the remapped version of <Plug>(minwiki-index).
 
 --------------------------------------------------------------------------------
-2.2. Local Mappings                                       *minwiki-local-mappings*
+2.2. Local Mappings                                     *minwiki-local-mappings*
 
-Local mappings are specific to files with a markdown extension located inside
-the folder |g:minwiki_path|.
+							*<CR>* *minwiki-enter*
+<CR>		Open the wiki link under the cursor. If no link exists,
+		surround the current |WORD| in brackets. If cursor is between
+		brackets, create a link to the text between the brackets.
 
-ADD:
-	nnoremap <silent> <buffer> <CR> :call minwiki#Enter()<CR>
-	nnoremap <silent> <buffer> <BS> :call minwiki#PrevPage()<CR>
-	nnoremap <silent> <buffer> <Tab> :<C-U>call minwiki#NextLink(v:count1)<CR>
-	nnoremap <silent> <buffer> <S-Tab> :<C-U>call minwiki#PrevLink(v:count1)<CR>
+						    *<BS>* *minwiki-prev-page*
+<BS>		Go to the previous wiki page in the current window.
+
+						   *<Tab>* *minwiki-next-link*
+<Tab>		Move cursor to next markdown link in the current buffer.
+
+						 *<S-Tab>* *minwiki-prev-link*
+<S-Tab>		Move cursor to previous markdown link in the current buffer.
+
+To redefine a local mapping, create the file ~/.vim/after/minwiki.vim and add
+the new mappings. For example, >
+	nmap <silent> <buffer> <LocalLeader>n <Plug>(minwiki-next-link)
+remaps <LocalLeader>n to <Plug>(minwiki-next-link). The |<buffer>| argument
+keeps this remap local to the current buffer, and |<silent>| prevents the
+command line from echoing the command. Note that you must use |nmap| instead
+of |nnoremap| because the command needs to access the remapped version of
+<Plug>(minwiki-next-link).
 
 ================================================================================
-3. License                                                       *minwiki-license*
-================================================================================
-4. Credits                                                       *minwiki-credits*
+3. License                                                     *minwiki-license*
 
- vim:tw=80:ts=8:noet:ft=help:norl:
+Copyright (C) 2019 Ben Jones.
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see https://www.gnu.org/licenses/.
+
+ vim:tw=80:ts=8:ft=help:norl:
