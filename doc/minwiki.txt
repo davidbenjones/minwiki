@@ -94,24 +94,32 @@ we need to access the remapped version of <Plug>(minwiki-index).
 <CR>		Open the wiki link under the cursor. If no link exists,
 		surround the current |WORD| in brackets. If cursor is between
 		brackets, create a link to the text between the brackets.
+		Maps to <Plug>(minwiki-enter).
 
 						    *<BS>* *minwiki-prev-page*
-<BS>		Go to the previous wiki page in the current window.
+<BS>		Go to the previous wiki page in the current window. Mapts to
+		<Plug>(minwiki-prev-page).
 
 						   *<Tab>* *minwiki-next-link*
-<Tab>		Move cursor to next markdown link in the current buffer.
+<Tab>		Move cursor to next markdown link in the current buffer. Maps
+		to <Plug>(minwiki-next-link).
 
 						 *<S-Tab>* *minwiki-prev-link*
 <S-Tab>		Move cursor to previous markdown link in the current buffer.
+		Maps to <Plug>(minwiki-prev-link).
 
 To redefine a local mapping, create the file ~/.vim/after/minwiki.vim and add
-the new mappings. For example, >
+the new mappings.
+
+For example, >
 	nmap <silent> <buffer> <LocalLeader>n <Plug>(minwiki-next-link)
-remaps <LocalLeader>n to <Plug>(minwiki-next-link). The |<buffer>| argument
-keeps this remap local to the current buffer, and |<silent>| prevents the
-command line from echoing the command. Note that you must use |nmap| instead
-of |nnoremap| because the command needs to access the remapped version of
-<Plug>(minwiki-next-link).
+remaps <LocalLeader>n to <Plug>(minwiki-next-link). This does not remove the
+existing map. See |unmap|.
+
+The |<buffer>| argument keeps this remap local to the current buffer, and
+|<silent>| prevents the command line from echoing the command. Note that you
+must use |nmap| instead of |nnoremap| because the command needs to access the
+remapped version of <Plug>(minwiki-next-link).
 
 ================================================================================
 3. License                                                     *minwiki-license*
